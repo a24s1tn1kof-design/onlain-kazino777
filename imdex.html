@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casino 777</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: radial-gradient(circle at center, #1a0033 0%, #000 100%);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  h1 {
+    font-size: 3em;
+    background: linear-gradient(45deg, #ffd700, #ff8c00, #ffd700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    margin-bottom: 10px;
+    letter-spacing: 3px;
+  }
+  .balance {
+    font-size: 1.5em;
+    background: rgba(255, 215, 0, 0.1);
+    border: 2px solid #ffd700;
+    border-radius: 15px;
+    padding: 10px 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  .balance span { color: #ffd700; font-weight: bold; }
+  .tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .tab {
+    padding: 12px 25px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid #444;
+    color: #aaa;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.3s;
+  }
+  .tab:hover { border-color: #ffd700; color: #ffd700; }
+  .tab.active {
+    background: linear-gradient(45deg, #ffd700, #ff8c00);
+    color: #000;
+    border-color: #ffd700;
+    font-weight: bold;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  }
+  .game {
+    background: rgba(0,0,0,0.6);
+    border: 2px solid #333;
+    border-radius: 20px;
+    padding: 30px;
+    min-width: 340px;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.15);
+  }
+  .game h2 { color: #ffd700; margin-bottom: 20px; }
+  .hidden { display: none; }
+  button.action {
+    padding: 12px 30px;
+    background: linear-gradient(45deg, #ffd700, #ff8c00);
+    border: none;
+    color: #000;
+    font-weight: bold;
+    font-size: 1.1em;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 10px 5px;
+    transition: transform 0.2s;
+  }
+  button.action:hover { transform: scale(1.05); }
+  button.action:disabled {
+    background: #444;
+    color: #888;
+    cursor: not-allowed;
+    transform: none;
+  }
+  input[type=number] {
+    padding: 10px;
+    background: #111;
+    border: 2px solid #555;
+    color: #ffd700;
+    border-radius: 8px;
+    font-size: 1em;
+    width: 120px;
+    text-align: center;
+  }
+  .slots {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 25px 0;
+  }
+  .reel {
+    width: 80px;
+    height: 100px;
+    background: #fff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3em;
+    border: 3px solid #ffd700;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
+  }
+  .reel.spin { animation: spinAnim 0.1s linear infinite; }
+  @keyframes spinAnim {
+    0% { transform: translateY(-5px); }
+    50% { transform: translateY(5px); }
+    100% { transform: translateY(-5px); }
+  }
+  .result {
+    margin-top: 15px;
+    font-size: 1.2em;
+    min-height: 30px;
+    font-weight: bold;
+  }
+  .win { color: #4dff4d; text-shadow: 0 0 10px #4dff4d; }
+  .lose { color: #ff4444; }
+  .cards { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+  .card {
+    width: 70px;
+    height: 100px;
+    background: #fff;
+    border-radius: 8px;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    border: 2px solid #333;
+  }
+  .card.red { color: #d00; }
+  .card.back {
+    background: linear-gradient(135deg, #8b0000, #4b0000);
+    color: #ffd700;
+    border-color: #ffd700;
+  }
+  .dice {
+    font-size: 5em;
+    display: inline-block;
+    margin: 10px;
+  }
+  .dice.rolling { animation: roll 0.4s linear infinite; }
+  @keyframes roll {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  .bet-controls {
+    margin: 15px 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .bet-controls button {
+    padding: 8px 15px;
+    background: #333;
+    color: #ffd700;
+    border: 2px solid #ffd700;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .bet-controls button:hover { background: #ffd700; color: #000; }
+</style>
+</head>
+<body>
+
+<h1>🎰 CASINO 777 🎰</h1>
+<div class="balance">Баланс: <span id="balance">1000</span> ₡</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('slots', this)">🎰 Слоты</button>
+  <button class="tab" onclick="switchTab('blackjack', this)">🃏 Блэкджек</button>
+  <button class="tab" onclick="switchTab('dice', this)">🎲 Кости</button>
+  <button class="tab" onclick="switchTab('roulette', this)">🎡 Рулетка</button>
+</div>
+
+<!-- SLOTS -->
+<div id="slots" class="game">
+  <h2>Игровой автомат</h2>
+  <div class="slots">
+    <div class="reel" id="reel1">🍒</div>
+    <div class="reel" id="reel2">🍒</div>
+    <div class="reel" id="reel3">🍒</div>
+  </div>
+  <div class="bet-controls">
+    <button onclick="changeBet('slots', -50)">-50</button>
+    <span>Ставка: <input type="number" id="slotsBet" value="50" min="10"></span>
+    <button onclick="changeBet('slots', 50)">+50</button>
+  </div>
+  <button class="action" id="slotsBtn" onclick="playSlots()">Крутить!</button>
+  <div class="result" id="slotsResult"></div>
+</div>
+
+<!-- BLACKJACK -->
+<div id="blackjack" class="game hidden">
+  <h2>Блэкджек</h2>
+  <div class="bet-controls">
+    <span>Ставка: <input type="number" id="bjBet" value="100" min="10"></span>
+  </div>
+  <div class="cards" id="dealerCards"></div>
+  <div class="cards" id="playerCards"></div>
+  <div class="result" id="bjResult"></div>
+  <div>
+    <button class="action" id="bjStart" onclick="bjStart()">Раздать</button>
+    <button class="action hidden" id="bjHit" onclick="bjHit()">Взять</button>
+    <button class="action hidden" id="bjStand" onclick="bjStand()">Хватит</button>
+  </div>
+</div>
+
+<!-- DICE -->
+<div id="dice" class="game hidden">
+  <h2>Кости</h2>
+  <div id="diceDisplay">
+    <span class="dice" id="die1">⚀</span>
+    <span class="dice" id="die2">⚀</span>
+  </div>
+  <p style="color:#aaa; margin: 10px 0;">Угадай: сумма больше 7 или меньше?</p>
+  <div class="bet-controls">
+    <span>Ставка: <input type="number" id="diceBet" value="100" min="10"></span>
+  </div>
+  <button class="action" onclick="playDice('low')">Меньше 7</button>
+  <button class="action" onclick="playDice('high')">Больше 7</button>
+  <button class="action" onclick="playDice('seven')">Ровно 7 (x5)</button>
+  <div class="result" id="diceResult"></div>
+</div>
+
+<!-- ROULETTE -->
+<div id="roulette" class="game hidden">
+  <h2>Рулетка</h2>
+  <div style="font-size: 4em; margin: 20px;" id="rouletteNum">?</div>
+  <div class="bet-controls">
+    <span>Ставка: <input type="number" id="rouletteBet" value="100" min="10"></span>
+  </div>
+  <button class="action" onclick="playRoulette('red')">🔴 Красное (x2)</button>
+  <button class="action" onclick="playRoulette('black')">⚫ Чёрное (x2)</button>
+  <button class="action" onclick="playRoulette('even')">Чёт (x2)</button>
+  <button class="action" onclick="playRoulette('odd')">Нечет (x2)</button>
+  <button class="action" onclick="playRoulette('green')">🟢 Зеро (x14)</button>
+  <div class="result" id="rouletteResult"></div>
+</div>
+
+<script>
+let balance = 1000;
+let bjActive = false, bjPlayer = [], bjDealer = [], bjBet = 0;
+
+const symbols = ['🍒','🍋','🔔','⭐','💎','7️⃣'];
+const weights = [30, 25, 20, 12, 8, 5];
+
+function updateBalance() {
+  document.getElementById('balance').textContent = balance;
+}
+
+function switchTab(id, el) {
+  document.querySelectorAll('.game').forEach(g => g.classList.add('hidden'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.remove('hidden');
+  el.classList.add('active');
+}
+
+function changeBet(game, delta) {
+  const input = document.getElementById(game + 'Bet');
+  let val = parseInt(input.value) + delta;
+  if (val < 10) val = 10;
+  if (val > balance) val = balance;
+  input.value = val;
+}
+
+function randomSymbol() {
+  const total = weights.reduce((a,b) => a+b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < symbols.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return symbols[i];
+  }
+  return symbols[0];
+}
+
+function playSlots() {
+  const bet = parseInt(document.getElementById('slotsBet').value);
+  if (bet > balance) { alert('Недостаточно средств!'); return; }
+  if (bet < 10) { alert('Минимальная ставка 10'); return; }
+  
+  balance -= bet;
+  updateBalance();
+  
+  const btn = document.getElementById('slotsBtn');
+  btn.disabled = true;
+  document.getElementById('slotsResult').textContent = '';
+  
+  const reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
+  reels.forEach(r => r.classList.add('spin'));
+  
+  const spinInterval = setInterval(() => {
+    reels.forEach(r => r.textContent = randomSymbol());
+  }, 80);
+  
+  setTimeout(() => {
+    clearInterval(spinInterval);
+    reels.forEach(r => r.classList.remove('spin'));
+    
+    const results = [randomSymbol(), randomSymbol(), randomSymbol()];
+    reels.forEach((r, i) => r.textContent = results[i]);
+    
+    let win = 0;
+    const [a, b, c] = results;
+    
+    if (a === b && b === c) {
+      if (a === '7️⃣') win = bet * 20;
+      else if (a === '💎') win = bet * 10;
+      else if (a === '⭐') win = bet * 7;
+      else if (a === '🔔') win = bet * 5;
+      else win = bet * 3;
+    } else if (a === b || b === c || a === c) {
+      win = bet * 1.5;
+    }
+    
+    const resEl = document.getElementById('slotsResult');
+    if (win > 0) {
+      balance += Math.floor(win);
+      updateBalance();
+      resEl.textContent = `🎉 Выигрыш: ${Math.floor(win)} ₡`;
+      resEl.className = 'result win';
+    } else {
+      resEl.textContent = '😢 Проигрыш';
+      resEl.className = 'result lose';
+    }
+    btn.disabled = false;
+  }, 1500);
+}
+
+// BLACKJACK
+function createCard(rank, suit) {
+  const red = suit === '♥' || suit === '♦';
+  const div = document.createElement('div');
+  div.className = 'card' + (red ? ' red' : '');
+  div.innerHTML = `<div>${rank}</div><div style="font-size:1.3em">${suit}</div>`;
+  return div;
+}
+
+function cardBack() {
+  const div = document.createElement('div');
+  div.className = 'card back';
+  div.textContent = '?';
+  return div;
+}
+
+function drawCard() {
+  const ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+  const suits = ['♠','♥','♦','♣'];
+  return { rank: ranks[Math.floor(Math.random()*ranks.length)], suit: suits[Math.floor(Math.random()*4)] };
+}
+
+function cardValue(c) {
+  if (c.rank === 'A') return 11;
+  if (['J','Q','K'].includes(c.rank)) return 10;
+  return parseInt(c.rank);
+}
+
+function handTotal(hand) {
+  let total = 0, aces = 0;
+  for (const c of hand) {
+    total += cardValue(c);
+    if (c.rank === 'A') aces++;
+  }
+  while (total > 21 && aces > 0) { total -= 10; aces--; }
+  return total;
+}
+
+function renderHands(hideDealer) {
+  const dc = document.getElementById('dealerCards');
+  const pc = document.getElementById('playerCards');
+  dc.innerHTML = ''; pc.innerHTML = '';
+  bjDealer.forEach((c, i) => {
+    if (hideDealer && i === 1) dc.appendChild(cardBack());
+    else dc.appendChild(createCard(c.rank, c.suit));
+  });
+  bjPlayer.forEach(c => pc.appendChild(createCard(c.rank, c.suit)));
+}
+
+function bjStart() {
+  bjBet = parseInt(document.getElementById('bjBet').value);
+  if (bjBet > balance) { alert('Недостаточно средств!'); return; }
+  if (bjBet < 10) { alert('Мин. ставка 10'); return; }
+  
+  balance -= bjBet;
+  updateBalance();
+  bjActive = true;
+  
+  bjPlayer = [drawCard(), drawCard()];
+  bjDealer = [drawCard(), drawCard()];
+  renderHands(true);
+  
+  document.getElementById('bjResult').textContent = '';
+  document.getElementById('bjStart').classList.add('hidden');
+  document.getElementById('bjHit').classList.remove('hidden');
+  document.getElementById('bjStand').classList.remove('hidden');
+  
+  if (handTotal(bjPlayer) === 21) bjStand();
+}
+
+function bjHit() {
+  bjPlayer.push(drawCard());
+  renderHands(true);
+  if (handTotal(bjPlayer) > 21) {
+    document.getElementById('bjResult').textContent = '💥 Перебор! Проигрыш';
+    document.getElementById('bjResult').className = 'result lose';
+    endBJ();
+  }
+}
+
+function bjStand() {
+  while (handTotal(bjDealer) < 17) bjDealer.push(drawCard());
+  renderHands(false);
+  
+  const p = handTotal(bjPlayer), d = handTotal(bjDealer);
+  const resEl = document.getElementById('bjResult');
+  
+  if (d > 21 || p > d) {
+    balance += bjBet * 2;
+    updateBalance();
+    resEl.textContent = `🎉 Победа! +${bjBet} ₡`;
+    resEl.className = 'result win';
+  } else if (p === d) {
+    balance += bjBet;
+    updateBalance();
+    resEl.textContent = '🤝 Ничья. Ставка возвращена';
+    resEl.className = 'result';
+  } else {
+    resEl.textContent = '😢 Проигрыш';
+    resEl.className = 'result lose';
+  }
+  endBJ();
+}
+
+function endBJ() {
+  bjActive = false;
+  document.getElementById('bjStart').classList.remove('hidden');
+  document.getElementById('bjHit').classList.add('hidden');
+  document.getElementById('bjStand').classList.add('hidden');
+}
+
+// DICE
+function playDice(choice) {
+  const bet = parseInt(document.getElementById('diceBet').value);
+  if (bet > balance) { alert('Недостаточно средств!'); return; }
+  if (bet < 10) { alert('Мин. ставка 10'); return; }
+  
+  balance -= bet;
+  updateBalance();
+  
+  const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+  const d1 = document.getElementById('die1'), d2 = document.getElementById('die2');
+  d1.classList.add('rolling'); d2.classList.add('rolling');
+  
+  const interval = setInterval(() => {
+    d1.textContent = faces[Math.floor(Math.random()*6)];
+    d2.textContent = faces[Math.floor(Math.random()*6)];
+  }, 100);
+  
+  setTimeout(() => {
+    clearInterval(interval);
+    d1.classList.remove('rolling'); d2.classList.remove('rolling');
+    
+    const v1 = Math.floor(Math.random()*6)+1;
+    const v2 = Math.floor(Math.random()*6)+1;
+    d1.textContent = faces[v1-1];
+    d2.textContent = faces[v2-1];
+    const sum = v1 + v2;
+    
+    let win = 0;
+    if (choice === 'low' && sum < 7) win = bet * 2;
+    else if (choice === 'high' && sum > 7) win = bet * 2;
+    else if (choice === 'seven' && sum === 7) win = bet * 5;
+    
+    const resEl = document.getElementById('diceResult');
+    if (win > 0) {
+      balance += win;
+      updateBalance();
+      resEl.textContent = `🎉 Выпало ${sum}. Выигрыш: ${win} ₡`;
+      resEl.className = 'result win';
+    } else {
+      resEl.textContent = `😢 Выпало ${sum}. Проигрыш`;
+      resEl.className = 'result lose';
+    }
+  }, 1500);
+}
+
+// ROULETTE
+function playRoulette(choice) {
+  const bet = parseInt(document.getElementById('rouletteBet').value);
+  if (bet > balance) { alert('Недостаточно средств!'); return; }
+  if (bet < 10) { alert('Мин. ставка 10'); return; }
+  
+  balance -= bet;
+  updateBalance();
+  
+  const numEl = document.getElementById('rouletteNum');
+  let count = 0;
+  const interval = setInterval(() => {
+    numEl.textContent = Math.floor(Math.random()*37);
+    count++;
+    if (count > 20) {
+      clearInterval(interval);
+      finishRoulette(choice, bet);
+    }
+  }, 80);
+}
+
+function finishRoulette(choice, bet) {
+  const n = Math.floor(Math.random()*37);
+  const numEl = document.getElementById('rouletteNum');
+  numEl.textContent = n;
+  numEl.style.color = n === 0 ? '#4dff4d' : (n % 2 === 0 ? '#000' : '#ff4444');
+  if (n !== 0) numEl.style.textShadow = n % 2 === 0 ? '1px 1px 0 #fff, -1px -1px 0 #fff' : 'none';
+  
+  const reds = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+  const isRed = reds.includes(n);
+  const isBlack = n !== 0 && !isRed;
+  
+  let win = 0;
+  if (choice === 'red' && isRed) win = bet * 2;
+  else if (choice === 'black' && isBlack) win = bet * 2;
+  else if (choice === 'even' && n !== 0 && n % 2 === 0) win = bet * 2;
+  else if (choice === 'odd' && n % 2 === 1) win = bet * 2;
+  else if (choice === 'green' && n === 0) win = bet * 14;
+  
+  const resEl = document.getElementById('rouletteResult');
+  if (win > 0) {
+    balance += win;
+    updateBalance();
+    resEl.textContent = `🎉 Выпало ${n}. Выигрыш: ${win} ₡`;
+    resEl.className = 'result win';
+  } else {
+    resEl.textContent = `😢 Выпало ${n}. Проигрыш`;
+    resEl.className = 'result lose';
+  }
+}
+
+updateBalance();
+</script>
+</body>
+  </html>
