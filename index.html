@@ -15,6 +15,7 @@
     flex-direction: column;
     align-items: center;
     padding: 20px;
+    text-align: center;
   }
   h1 {
     font-size: 3em;
@@ -22,8 +23,10 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-    margin-bottom: 10px;
+    margin: 0 auto 10px;
     letter-spacing: 3px;
+    text-align: center;
+    width: 100%;
   }
   .balance {
     font-size: 1.5em;
@@ -31,10 +34,27 @@
     border: 2px solid #ffd700;
     border-radius: 15px;
     padding: 10px 30px;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    text-align: center;
   }
   .balance span { color: #ffd700; font-weight: bold; }
+  
+  .topup-btn {
+    padding: 12px 30px;
+    background: linear-gradient(45deg, #00c853, #00e676);
+    border: none;
+    color: #000;
+    font-weight: bold;
+    font-size: 1.1em;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    box-shadow: 0 0 20px rgba(0, 200, 83, 0.5);
+    transition: transform 0.2s;
+  }
+  .topup-btn:hover { transform: scale(1.05); }
+  
   .tabs {
     display: flex;
     gap: 10px;
@@ -67,10 +87,11 @@
     padding: 30px;
     min-width: 340px;
     max-width: 500px;
+    width: 100%;
     text-align: center;
     box-shadow: 0 0 40px rgba(255, 215, 0, 0.15);
   }
-  .game h2 { color: #ffd700; margin-bottom: 20px; }
+  .game h2 { color: #ffd700; margin-bottom: 20px; text-align: center; }
   .hidden { display: none; }
   button.action {
     padding: 12px 30px;
@@ -98,7 +119,7 @@
     color: #ffd700;
     border-radius: 8px;
     font-size: 1em;
-    width: 120px;
+    width: 140px;
     text-align: center;
   }
   .slots {
@@ -133,7 +154,7 @@
   }
   .win { color: #4dff4d; text-shadow: 0 0 10px #4dff4d; }
   .lose { color: #ff4444; }
-  .cards { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+  .cards { display: flex; justify-content: center; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
   .card {
     width: 70px;
     height: 100px;
@@ -173,22 +194,78 @@
     align-items: center;
     flex-wrap: wrap;
   }
-  .bet-controls button {
-    padding: 8px 15px;
-    background: #333;
-    color: #ffd700;
-    border: 2px solid #ffd700;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
+  
+  /* Модальное окно пополнения */
+  .modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
   }
-  .bet-controls button:hover { background: #ffd700; color: #000; }
+  .modal-content {
+    background: linear-gradient(135deg, #1a0033, #2d0052);
+    border: 3px solid #ffd700;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+  }
+  .modal-content h3 {
+    color: #ffd700;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+  }
+  .amount-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .amount-btn {
+    padding: 15px;
+    background: rgba(255, 215, 0, 0.1);
+    border: 2px solid #ffd700;
+    color: #ffd700;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+  .amount-btn:hover {
+    background: #ffd700;
+    color: #000;
+  }
+  .custom-amount {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    justify-content: center;
+  }
+  .close-btn {
+    padding: 10px 30px;
+    background: #ff4444;
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1em;
+  }
 </style>
 </head>
 <body>
 
 <h1>🎰 CASINO 777 🎰</h1>
-<div class="balance">Баланс: <span id="balance">1000</span> ₡</div>
+<div class="balance">Баланс: <span id="balance">0</span> ₡</div>
+
+<button class="topup-btn" onclick="openTopup()">💰 Пополнить баланс</button>
 
 <div class="tabs">
   <button class="tab active" onclick="switchTab('slots', this)">🎰 Слоты</button>
@@ -206,9 +283,7 @@
     <div class="reel" id="reel3">🍒</div>
   </div>
   <div class="bet-controls">
-    <button onclick="changeBet('slots', -50)">-50</button>
     <span>Ставка: <input type="number" id="slotsBet" value="50" min="10"></span>
-    <button onclick="changeBet('slots', 50)">+50</button>
   </div>
   <button class="action" id="slotsBtn" onclick="playSlots()">Крутить!</button>
   <div class="result" id="slotsResult"></div>
@@ -218,7 +293,7 @@
 <div id="blackjack" class="game hidden">
   <h2>Блэкджек</h2>
   <div class="bet-controls">
-    <span>Ставка: <input type="number" id="bjBet" value="100" min="10"></span>
+    <span>Ставка: <input type="number" id="bjBet" value="50" min="10"></span>
   </div>
   <div class="cards" id="dealerCards"></div>
   <div class="cards" id="playerCards"></div>
@@ -239,7 +314,7 @@
   </div>
   <p style="color:#aaa; margin: 10px 0;">Угадай: сумма больше 7 или меньше?</p>
   <div class="bet-controls">
-    <span>Ставка: <input type="number" id="diceBet" value="100" min="10"></span>
+    <span>Ставка: <input type="number" id="diceBet" value="50" min="10"></span>
   </div>
   <button class="action" onclick="playDice('low')">Меньше 7</button>
   <button class="action" onclick="playDice('high')">Больше 7</button>
@@ -252,7 +327,7 @@
   <h2>Рулетка</h2>
   <div style="font-size: 4em; margin: 20px;" id="rouletteNum">?</div>
   <div class="bet-controls">
-    <span>Ставка: <input type="number" id="rouletteBet" value="100" min="10"></span>
+    <span>Ставка: <input type="number" id="rouletteBet" value="50" min="10"></span>
   </div>
   <button class="action" onclick="playRoulette('red')">🔴 Красное (x2)</button>
   <button class="action" onclick="playRoulette('black')">⚫ Чёрное (x2)</button>
@@ -262,8 +337,26 @@
   <div class="result" id="rouletteResult"></div>
 </div>
 
+<!-- МОДАЛЬНОЕ ОКНО ПОПОЛНЕНИЯ -->
+<div id="topupModal" class="modal hidden">
+  <div class="modal-content">
+    <h3>💰 Пополнение баланса</h3>
+    <div class="amount-grid">
+      <button class="amount-btn" onclick="topup(100)">+100 ₡</button>
+      <button class="amount-btn" onclick="topup(500)">+500 ₡</button>
+      <button class="amount-btn" onclick="topup(1000)">+1000 ₡</button>
+      <button class="amount-btn" onclick="topup(5000)">+5000 ₡</button>
+    </div>
+    <div class="custom-amount">
+      <input type="number" id="customAmount" placeholder="Своя сумма" min="1">
+      <button class="action" onclick="topupCustom()">Пополнить</button>
+    </div>
+    <button class="close-btn" onclick="closeTopup()">Закрыть</button>
+  </div>
+</div>
+
 <script>
-let balance = 1000;
+let balance = 0;
 let bjActive = false, bjPlayer = [], bjDealer = [], bjBet = 0;
 
 const symbols = ['🍒','🍋','🔔','⭐','💎','7️⃣'];
@@ -273,19 +366,35 @@ function updateBalance() {
   document.getElementById('balance').textContent = balance;
 }
 
+function openTopup() {
+  document.getElementById('topupModal').classList.remove('hidden');
+}
+
+function closeTopup() {
+  document.getElementById('topupModal').classList.add('hidden');
+}
+
+function topup(amount) {
+  balance += amount;
+  updateBalance();
+  closeTopup();
+}
+
+function topupCustom() {
+  const val = parseInt(document.getElementById('customAmount').value);
+  if (!val || val <= 0) { alert('Введи сумму больше 0'); return; }
+  if (val > 1000000) { alert('Максимум 1 000 000 за раз'); return; }
+  balance += val;
+  updateBalance();
+  document.getElementById('customAmount').value = '';
+  closeTopup();
+}
+
 function switchTab(id, el) {
   document.querySelectorAll('.game').forEach(g => g.classList.add('hidden'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.remove('hidden');
   el.classList.add('active');
-}
-
-function changeBet(game, delta) {
-  const input = document.getElementById(game + 'Bet');
-  let val = parseInt(input.value) + delta;
-  if (val < 10) val = 10;
-  if (val > balance) val = balance;
-  input.value = val;
 }
 
 function randomSymbol() {
@@ -300,8 +409,8 @@ function randomSymbol() {
 
 function playSlots() {
   const bet = parseInt(document.getElementById('slotsBet').value);
-  if (bet > balance) { alert('Недостаточно средств!'); return; }
-  if (bet < 10) { alert('Минимальная ставка 10'); return; }
+  if (!bet || bet < 10) { alert('Минимальная ставка 10'); return; }
+  if (bet > balance) { alert('Недостаточно средств! Пополни баланс.'); return; }
   
   balance -= bet;
   updateBalance();
@@ -402,8 +511,8 @@ function renderHands(hideDealer) {
 
 function bjStart() {
   bjBet = parseInt(document.getElementById('bjBet').value);
-  if (bjBet > balance) { alert('Недостаточно средств!'); return; }
-  if (bjBet < 10) { alert('Мин. ставка 10'); return; }
+  if (!bjBet || bjBet < 10) { alert('Мин. ставка 10'); return; }
+  if (bjBet > balance) { alert('Недостаточно средств! Пополни баланс.'); return; }
   
   balance -= bjBet;
   updateBalance();
@@ -465,8 +574,8 @@ function endBJ() {
 // DICE
 function playDice(choice) {
   const bet = parseInt(document.getElementById('diceBet').value);
-  if (bet > balance) { alert('Недостаточно средств!'); return; }
-  if (bet < 10) { alert('Мин. ставка 10'); return; }
+  if (!bet || bet < 10) { alert('Мин. ставка 10'); return; }
+  if (bet > balance) { alert('Недостаточно средств! Пополни баланс.'); return; }
   
   balance -= bet;
   updateBalance();
@@ -511,8 +620,8 @@ function playDice(choice) {
 // ROULETTE
 function playRoulette(choice) {
   const bet = parseInt(document.getElementById('rouletteBet').value);
-  if (bet > balance) { alert('Недостаточно средств!'); return; }
-  if (bet < 10) { alert('Мин. ставка 10'); return; }
+  if (!bet || bet < 10) { alert('Мин. ставка 10'); return; }
+  if (bet > balance) { alert('Недостаточно средств! Пополни баланс.'); return; }
   
   balance -= bet;
   updateBalance();
@@ -562,4 +671,4 @@ function finishRoulette(choice, bet) {
 updateBalance();
 </script>
 </body>
-  </html>
+ </html>
